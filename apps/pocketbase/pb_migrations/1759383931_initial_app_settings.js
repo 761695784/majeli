@@ -2,12 +2,14 @@
 migrate((app) => {
     let settings = app.settings()
 
-    settings.meta.appName = "643fe87e-c220-49ef-848d-95ea0c5a57c5.app-preview.com"
-    settings.meta.appURL = "https://643fe87e-c220-49ef-848d-95ea0c5a57c5.app-preview.com/hcgi/platform"
-    settings.meta.hideControls = true
+    settings.meta.appName = "Majeli Connect"
+    settings.meta.appURL = "https://majeliconnect.com"
+    settings.meta.hideControls = false
+    settings.meta.senderName = "Majeli Connect"
+    settings.meta.senderAddress = "contact@majeliconnect.com"
 
-    settings.logs.maxDays = 7
-    settings.logs.minLevel = 8
+    settings.logs.maxDays = 14
+    settings.logs.minLevel = 0
     settings.logs.logIP = true
     
     settings.trustedProxy.headers = [

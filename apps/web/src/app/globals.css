@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 80 18% 97%; /* #F8F9F6 albâtre minéral épuré */
+    --foreground: 90 45% 15%; /* #283618 vert foncé */
+    --card: 0 0% 100%;
+    --card-foreground: 90 45% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 90 45% 15%;
+    --primary: 90 45% 15%; /* #283618 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 75 25% 35%; /* #606C38 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 85 16% 94%; /* #EFF2EC pierre douce */
+    --muted-foreground: 90 20% 34%;
+    --accent: 30 65% 45%; /* #BC6C25 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 85 14% 87%;
+    --input: 85 14% 87%;
+    --ring: 30 65% 45%;
+    --radius: 0.75rem;
+
+    /* Couleurs de marque en variables hex directes */
+    --brand-nuit: #0F170A;
+    --brand-foret: #1A2612;
+    --brand-vert-fonce: #283618;
+    --brand-olive: #606C38;
+    --brand-ivoire: #F8F9F6;
+    --brand-pierre: #EFF2EC;
+    --brand-creme: #FEFAE0;
+    --brand-ocre: #BC6C25;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #F8F9F6;
+    color: #283618;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #283618;
+  }
+
+  /* Cibles tactiles accessibles */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  :focus-visible {
+    outline: 2px solid #BC6C25;
+    outline-offset: 3px;
+  }
+}
+
+/* Utilitaires spécifiques Majeli */
+.bg-vert-fonce {
+  background-color: #283618;
+}
+
+.text-vert-fonce {
+  color: #283618;
+}
+
+.bg-olive {
+  background-color: #606C38;
+}
+
+.text-olive {
+  color: #606C38;
+}
+
+.bg-creme {
+  background-color: #FEFAE0;
+}
+
+.text-creme {
+  color: #FEFAE0;
+}
+
+.bg-ocre {
+  background-color: #BC6C25;
+}
+
+.text-ocre {
+  color: #BC6C25;
+}
+
+.border-olive-soft {
+  border-color: rgba(96, 108, 56, 0.2);
+}
+
+.glass-nav {
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(40, 54, 24, 0.09);
+}
+
+.glass-card-dark {
+  background: rgba(26, 38, 18, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(138, 160, 84, 0.18);
+}
+
+/* Trames architecturales d'ingénierie */
+.bg-tech-grid-dark {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+.bg-tech-grid-light {
+  background-size: 36px 36px;
+  background-image:
+    linear-gradient(to right, rgba(40, 54, 24, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(40, 54, 24, 0.045) 1px, transparent 1px);
+}
+
+/* Animations fluides */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
