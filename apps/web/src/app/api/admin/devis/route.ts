@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
-import { pb } from '@/lib/pocketbase';
+import { createAdminPb } from '@/lib/pocketbase-server';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(request: Request) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   try {
-    await pb.collection('_superusers').authWithPassword(
-      process.env.PB_SUPERUSER_EMAIL || 'admin@majeliconnect.com',
-      process.env.PB_SUPERUSER_PASSWORD || 'Majeli2026Admin!'
-    );
+    const pb = await createAdminPb();
 
     const records = await pb.collection('devis').getFullList({
       sort: '-created',
@@ -15,22 +16,22 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, items: records });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Erreur récupération devis';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Erreur API admin :', message);
+    return NextResponse.json({ error: 'Erreur interne.' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
   try {
     const data = await request.json();
 
     if (!data.client_nom || !data.client_email || !data.items || !Array.isArray(data.items)) {
       return NextResponse.json({ error: 'Données client ou prestations incomplètes' }, { status: 400 });
     }
-
-    await pb.collection('_superusers').authWithPassword(
-      process.env.PB_SUPERUSER_EMAIL || 'admin@majeliconnect.com',
-      process.env.PB_SUPERUSER_PASSWORD || 'Majeli2026Admin!'
-    );
+    const pb = await createAdminPb();
 
     // Calcul automatique des totaux
     const total_ht = data.items.reduce(
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, item: createdRecord });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Erreur création devis';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Erreur API admin :', message);
+    return NextResponse.json({ error: 'Erreur interne.' }, { status: 500 });
   }
 }

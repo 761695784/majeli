@@ -22,6 +22,8 @@ interface FormState {
   urgency: string;
   equipmentCount: string;
   message: string;
+  /** Champ piège anti-robots : doit rester vide */
+  website: string;
 }
 
 export function ContactFunnel() {
@@ -45,6 +47,7 @@ export function ContactFunnel() {
     urgency: 'normale',
     equipmentCount: '1-5',
     message: '',
+    website: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,19 +83,24 @@ export function ContactFunnel() {
         body: JSON.stringify(form),
       });
 
+      const payload = (await res.json().catch(() => ({}))) as { error?: string };
+
       if (!res.ok) {
-        throw new Error("Une erreur s'est produite lors de l'enregistrement de votre demande.");
+        throw new Error(
+          payload.error ||
+            "Votre demande n'a pas pu être envoyée. Réessayez dans un instant ou écrivez-nous sur WhatsApp."
+        );
       }
 
       setSubmitSuccess(true);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Erreur de transmission.";
-      // Si l'API renvoie une erreur (par exemple si PocketBase n'est pas encore lancé),
-      // on bascule gracieusement avec un message clair et invitation WhatsApp
+      // L'écran de succès n'est affiché QUE si le serveur a réellement enregistré la demande.
       setErrorMessage(
-        "Votre demande a bien été préparée. En cas de latence serveur, vous pouvez la valider directement via WhatsApp avec le bouton ci-dessous."
+        // fetch() lève une TypeError quand le réseau est coupé
+        err instanceof Error && !(err instanceof TypeError)
+          ? err.message
+          : "Connexion impossible avec notre serveur. Vérifiez votre connexion ou écrivez-nous sur WhatsApp."
       );
-      setSubmitSuccess(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -146,6 +154,7 @@ Message : ${form.message || 'Demande de devis'}`;
                 urgency: 'normale',
                 equipmentCount: '1-5',
                 message: '',
+                website: '',
               });
             }}
             className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-olive/10 text-vert-fonce font-semibold text-sm hover:bg-olive/20 transition-colors"
@@ -192,13 +201,40 @@ Message : ${form.message || 'Demande de devis'}`;
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 sm:p-10 space-y-6">
+        {/* Champ piège anti-spam : invisible pour les visiteurs, ignoré par les lecteurs d'écran */}
+        <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
+          <label htmlFor="website">Ne pas remplir ce champ</label>
+          <input
+            id="website"
+            name="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={form.website}
+            onChange={handleChange}
+          />
+        </div>
+
         {errorMessage && (
           <div
             role="alert"
             className="p-4 rounded-xl bg-ocre/10 border border-ocre/30 text-vert-fonce text-xs flex items-start gap-2.5"
           >
             <AlertCircle className="w-4 h-4 text-ocre shrink-0 mt-0.5" />
-            <span>{errorMessage}</span>
+            <div className="space-y-2">
+              <span className="block">{errorMessage}</span>
+              <a
+                href={getWhatsAppUrl(
+                  `Bonjour Majeli Connect, je n'ai pas pu envoyer le formulaire du site.\nNom : ${form.fullName}\nType : ${form.funnelType}\nMessage : ${form.message}`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#25D366] text-white font-bold hover:bg-[#20ba59] transition-colors"
+              >
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+                <span>Envoyer ma demande sur WhatsApp</span>
+              </a>
+            </div>
           </div>
         )}
 

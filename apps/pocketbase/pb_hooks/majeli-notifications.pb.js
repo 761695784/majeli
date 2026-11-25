@@ -1,14 +1,36 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 onRecordAfterCreateSuccess((e) => {
-  const nom = e.record.get("nom_complet") || "Client";
+  // Échappement HTML : le contenu saisi par le visiteur ne doit jamais être interprété
+  // comme du HTML dans les emails (liens piégés, faux boutons, etc.).
+  // NB : défini DANS le handler, car PocketBase n'expose pas les fonctions du haut du fichier aux handlers.
+  const esc = (value) =>
+    String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  // Pour les objets d'email : texte brut sur une seule ligne
+  const oneLine = (value) => String(value == null ? "" : value).replace(/[\r\n]+/g, " ").slice(0, 120);
+
+  const nomBrut = e.record.get("nom_complet") || "Client";
   const emailClient = e.record.get("email");
-  const telephone = e.record.get("telephone") || "Non renseigné";
-  const entreprise = e.record.get("entreprise") || "Particulier / Non renseignée";
-  const typeDemande = e.record.get("type_demande") || "projet";
-  const forfait = e.record.get("forfait_choisi") || "Non spécifié";
-  const budget = e.record.get("fourchette_budget") || "À définir";
-  const messageContenu = e.record.get("message") || "";
+  const telephoneBrut = e.record.get("telephone") || "Non renseigné";
+  const forfaitBrut = e.record.get("forfait_choisi") || "";
+  const typeBrut = e.record.get("type_demande") || "projet";
+
+  const nom = esc(nomBrut);
+  const emailHtml = esc(emailClient);
+  const telephone = esc(telephoneBrut);
+  const telephoneChiffres = String(telephoneBrut).replace(/[^0-9]/g, "");
+  const entreprise = esc(e.record.get("entreprise") || "Particulier / Non renseignée");
+  const typeDemande = esc(typeBrut);
+  const forfait = esc(forfaitBrut || "Non spécifié");
+  const budget = esc(e.record.get("fourchette_budget") || "À définir");
+  const urgence = esc(e.record.get("urgence") || "Non précisée");
+  // Message : échappé puis retours à la ligne conservés
+  const messageContenu = esc(e.record.get("message") || "").replace(/\n/g, "<br>");
 
   // 1. Email de confirmation au client
   try {
@@ -67,17 +89,20 @@ onRecordAfterCreateSuccess((e) => {
         name: "Système Site Majeli Connect"
       },
       to: [{ address: "contact@majeliconnect.com" }],
-      subject: `🚨 [NOUVEAU PROSPECT] ${nom} - ${forfait || typeDemande}`,
+      subject: `🚨 [NOUVEAU PROSPECT] ${oneLine(nomBrut)} - ${oneLine(forfaitBrut || typeBrut)}`,
+      // « Répondre » dans la boîte mail répond directement au prospect
+      headers: { "Reply-To": emailClient },
       html: `
         <h2>Nouvelle demande de devis reçue sur majeliconnect.com</h2>
         <ul>
           <li><strong>Nom complet :</strong> ${nom}</li>
           <li><strong>Entreprise :</strong> ${entreprise}</li>
-          <li><strong>Email :</strong> <a href="mailto:${emailClient}">${emailClient}</a></li>
-          <li><strong>Téléphone :</strong> <a href="tel:${telephone}">${telephone}</a> (WhatsApp direct : <a href="https://wa.me/${telephone.replace(/[^0-9]/g, '')}">Cliquer ici</a>)</li>
+          <li><strong>Email :</strong> <a href="mailto:${emailHtml}">${emailHtml}</a></li>
+          <li><strong>Téléphone :</strong> <a href="tel:${telephone}">${telephone}</a> (WhatsApp direct : <a href="https://wa.me/${telephoneChiffres}">Cliquer ici</a>)</li>
           <li><strong>Type de demande :</strong> ${typeDemande}</li>
           <li><strong>Forfait ciblé :</strong> ${forfait}</li>
           <li><strong>Fourchette budget :</strong> ${budget}</li>
+          <li><strong>Urgence :</strong> ${urgence}</li>
         </ul>
         <h3>Message du prospect :</h3>
         <blockquote style="background:#f4f4f4; padding:12px; border-left:4px solid #283618;">
