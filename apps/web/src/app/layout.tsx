@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { FloatingWhatsApp } from '@/components/FloatingWhatsApp';
 import { GlobalStructuredData } from '@/components/seo/StructuredData';
+import { WebMcpTools } from '@/components/seo/WebMcpTools';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://majeliconnect.com'),
@@ -120,6 +121,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingWhatsApp />
+        <WebMcpTools />
       </body>
     </html>
   );
