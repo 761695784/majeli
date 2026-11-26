@@ -8,11 +8,3 @@ apps/web/tsconfig.tsbuildinfo
 .env
 .env.*
 !.env.example
-
-# Base de données PocketBase (contient les données des prospects)
-apps/pocketbase/pb_data/
-apps/pocketbase/pb_data_horizons_bak/
-
-# Binaire PocketBase (à télécharger sur le serveur)
-apps/pocketbase/pocketbase.exe
-apps/pocketbase/pocketbase
