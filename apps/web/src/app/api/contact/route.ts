@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createAdminPb } from '@/lib/pocketbase-server';
 
 const FUNNEL_TYPES = ['projet', 'intervention', 'formation'] as const;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -83,35 +82,65 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Votre message est trop court : décrivez votre besoin en quelques mots.' }, { status: 400 });
   }
 
-  // 4. Enregistrement dans PocketBase (le hook PocketBase envoie ensuite les emails)
+  // 4. Envoi à l'API (Laravel, hébergée avec l'API AMEG) qui expédie les deux emails
+  //    avec le compte SMTP de Majeli Connect. Appel serveur à serveur : la clé
+  //    secrète ne quitte jamais le serveur Next.js.
+  const apiUrl = process.env.MAJELI_MAIL_API_URL;
+  const apiKey = process.env.MAJELI_MAIL_API_KEY;
+  const echec = NextResponse.json(
+    { error: 'Notre serveur n’a pas pu envoyer votre demande. Envoyez-la-nous sur WhatsApp, nous vous répondons rapidement.' },
+    { status: 503 }
+  );
+
+  if (!apiUrl || !apiKey) {
+    console.error('MAJELI_MAIL_API_URL ou MAJELI_MAIL_API_KEY manquant : impossible d’envoyer la demande de contact.');
+    return echec;
+  }
+
   try {
-    const pb = await createAdminPb();
-    const record = await pb.collection('demandes_contact').create({
-      nom_complet: fullName,
-      entreprise: clean(data.company, 150),
-      email,
-      telephone: phone,
-      type_demande: funnelType,
-      forfait_choisi: clean(data.selectedPlan, 100),
-      fourchette_budget: clean(data.budgetRange, 50),
-      nombre_equipements: clean(data.equipmentCount, 50),
-      urgence: clean(data.urgency, 50),
-      message,
-      statut: 'nouveau',
-      source: 'site_web',
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-Majeli-Key': apiKey,
+      },
+      body: JSON.stringify({
+        full_name: fullName,
+        email,
+        phone,
+        company: clean(data.company, 150) || null,
+        request_type: funnelType,
+        selected_plan: clean(data.selectedPlan, 100) || null,
+        budget_range: clean(data.budgetRange, 50) || null,
+        equipment_count: clean(data.equipmentCount, 50) || null,
+        urgency: clean(data.urgency, 50) || null,
+        message,
+      }),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(25_000),
     });
+
+    if (res.status === 422) {
+      // Erreur de validation côté API : on renvoie le premier message au visiteur
+      const body = (await res.json().catch(() => ({}))) as { errors?: Record<string, string[]> };
+      const premier = body.errors ? Object.values(body.errors)[0]?.[0] : undefined;
+      return NextResponse.json({ error: premier || 'Certaines informations sont invalides.' }, { status: 400 });
+    }
+
+    if (!res.ok) {
+      const texte = await res.text().catch(() => '');
+      console.error(`API d’envoi Majeli : HTTP ${res.status}`, texte.slice(0, 300));
+      return echec;
+    }
 
     return NextResponse.json({
       success: true,
-      id: record.id,
-      message: 'Votre demande a été enregistrée avec succès.',
+      message: 'Votre demande a été envoyée avec succès.',
     });
   } catch (error) {
-    // Plus de « mode démo » : si l'enregistrement échoue, on le dit clairement au visiteur.
-    console.error('Échec enregistrement demande de contact :', error);
-    return NextResponse.json(
-      { error: 'Notre serveur n’a pas pu enregistrer votre demande. Envoyez-la-nous sur WhatsApp, nous vous répondons rapidement.' },
-      { status: 503 }
-    );
+    // Réseau coupé, délai dépassé, API injoignable : on le dit clairement au visiteur.
+    console.error('Échec de l’appel à l’API d’envoi Majeli :', error);
+    return echec;
   }
 }
