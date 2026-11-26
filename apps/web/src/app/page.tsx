@@ -6,6 +6,7 @@ import { ArrowRight, Star, Quote } from 'lucide-react';
 export const metadata: Metadata = {
   alternates: {
     canonical: '/',
+    types: { 'text/markdown': '/llms.txt' },
   },
 };
 import { SERVICES_LIST, ALL_PRICING_PLANS } from '@/lib/services-data';

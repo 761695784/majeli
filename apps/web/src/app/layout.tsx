@@ -37,6 +37,10 @@ export const metadata: Metadata = {
   publisher: 'Majeli Connect',
   category: 'technology',
   manifest: '/manifest.webmanifest',
+  // Version Markdown du site pour les agents IA
+  alternates: {
+    types: { 'text/markdown': '/llms.txt' },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48' },
@@ -90,7 +94,7 @@ export const metadata: Metadata = {
   },
   other: {
     'geo.region': 'SN-DK',
-    'geo.placename': 'Dakar, Liberté 5',
+    'geo.placename': 'Dakar, Sicap Liberté 5',
     'geo.position': '14.7225;-17.4589',
     ICBM: '14.7225, -17.4589',
   },

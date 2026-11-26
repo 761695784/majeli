@@ -141,6 +141,8 @@ export function Footer() {
               <span className="w-1.5 h-3.5 bg-ocre rounded-full" />
               <span>Contact Dakar</span>
             </h3>
+            {/* <address> : coordonnées lisibles par les moteurs et les agents IA */}
+            <address className="not-italic">
             <ul className="space-y-3 text-sm text-[#FEFAE0]/85">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-ocre shrink-0 mt-0.5" />
@@ -163,6 +165,7 @@ export function Footer() {
                 <span className="text-xs text-[#FEFAE0]/75">{CONTACT_INFO.operatingHours}</span>
               </li>
             </ul>
+            </address>
 
             <div className="mt-5">
               <a
@@ -181,10 +184,15 @@ export function Footer() {
         {/* Barre inférieure */}
         <div className="pt-8 border-t border-olive/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#FEFAE0]/70">
           <p>© {currentYear} {CONTACT_INFO.name}. Tous droits réservés.</p>
+          <nav aria-label="Informations légales" className="flex items-center gap-4">
+            <Link href="/agence" className="hover:text-ocre transition-colors">À propos</Link>
+            <Link href="/contact" className="hover:text-ocre transition-colors">Contact</Link>
+            <Link href="/mentions-legales" className="hover:text-ocre transition-colors">Mentions légales</Link>
+          </nav>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 text-[#FEFAE0]/80">
               <ShieldCheck className="w-4 h-4 text-ocre" />
-              <span>Code source propriétaire & Hébergement souverain</span>
+              <span>Code source propriétaire</span>
             </span>
           </div>
         </div>

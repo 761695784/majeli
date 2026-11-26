@@ -25,7 +25,7 @@ export const CONTACT_INFO: ContactInfo = {
   whatsappRaw: "221782643438",
   whatsappUrl: "https://wa.me/221782643438",
   email: "contact@majeliconnect.com",
-  address: "Liberté 5, Dakar",
+  address: "Sicap Liberté 5, Dakar",
   city: "Dakar",
   country: "Sénégal",
   operatingHours: "Lundi au Vendredi : 08h30 – 18h30 | Samedi : 09h00 – 14h00",

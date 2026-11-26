@@ -72,7 +72,7 @@ export function GlobalStructuredData() {
         priceRange: '200 000 FCFA - 2 500 000 FCFA',
         address: {
           '@type': 'PostalAddress',
-          streetAddress: 'Liberté 5',
+          streetAddress: 'Sicap Liberté 5',
           addressLocality: 'Dakar',
           addressRegion: 'Dakar',
           addressCountry: 'SN',
