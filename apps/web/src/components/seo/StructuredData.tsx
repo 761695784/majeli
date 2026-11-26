@@ -82,6 +82,12 @@ export function GlobalStructuredData() {
           latitude: 14.7225,
           longitude: -17.4589,
         },
+        hasMap: 'https://www.google.com/maps?cid=7270886052611895488',
+        sameAs: [
+          'https://www.google.com/maps?cid=7270886052611895488',
+          'https://www.tiktok.com/@majeliconnect',
+          'https://www.linkedin.com/company/majeli-connect/',
+        ],
         areaServed: [
           { '@type': 'City', name: 'Dakar' },
           { '@type': 'Country', name: 'Sénégal' },
